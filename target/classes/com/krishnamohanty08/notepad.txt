@@ -1,0 +1,25 @@
+Core Features
+Process Lifecycle Management: Simulate processes entering the system (New), waiting in the Ready Queue, Executing (Running), and Terminating.
+Algorithm Implementations: First-Come-First-Serve (FCFS), Shortest Job First (SJF - Preemptive and Non-Preemptive), Priority Scheduling, and Round Robin.
+Concurrency: Use Java multithreading (ExecutorService or Thread) to simulate a ticking system clock and asynchronous process execution.
+Metrics Engine: Calculate and output Average Waiting Time, Turnaround Time, and CPU Utilization.
+
+
+Mid-Level Complexity
+Live Queueing: Implement an event-driven clock loop. Processes should arrive dynamically at different tick intervals rather than all at t=0.
+
+Thread Synchronization: Use wait(), notify(), and BlockingQueue to handle race conditions safely when the process generator pushes new tasks to the dispatcher while the CPU is actively executing.
+
+Advanced Data Structures: Optimize the algorithms by implementing custom Min-Heaps (Priority Queues) for SJF and Priority scheduling, and Deques for Round Robin.
+
+
+The OOP Architecture
+The best way to structure this is by heavily utilizing the Strategy Design Pattern, which relies on polymorphism to let the simulator swap scheduling behaviors at runtime without changing the core engine.
+Process (Encapsulation): A class containing attributes like processId, arrivalTime, burstTime, remainingTime, priority, and state. Make attributes private and use strict getters/setters to protect the state.
+SchedulingStrategy (Abstraction): An interface containing a single method: Process getNextProcess(List<Process> readyQueue).
+Concrete Strategy Classes (Inheritance/Polymorphism): Distinct classes like RoundRobinScheduler and SJFScheduler that implement the SchedulingStrategy interface.
+CPU (Singleton Pattern): A class representing the processor that can only execute one Process at a time. It prevents multiple instances from running simultaneously.
+Dispatcher (Delegation): A controller class that manages the clock, holds the chosen SchedulingStrategy, and feeds processes to the CPU.
+
+
+OptiSched Implementation Workflow
