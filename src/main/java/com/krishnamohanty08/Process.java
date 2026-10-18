@@ -29,7 +29,11 @@ public class Process {
     public int getBurstTime(){return burstTime;}
     public int getPriority(){return priority;}
     public ProcessState getState(){return state;}
+
     public int getCompletionTime(){return completionTime;} 
+    public int getTurnOverTime(){return turnOverTime;}
+    public int getWaitingTime(){return waitingTime;}
+
     
     public void setRemainingTime(int remainingTime){
         this.remainingTime=remainingTime;
@@ -40,4 +44,11 @@ public class Process {
     public void setCompletionTime(int completionTime){
         this.completionTime=completionTime;
     }
+    public void setTurnOverTime(int tat){
+        this.turnOverTime = turnOverTime;
+    }
+    public void setWaitingTime(int wt){
+        this.waitingTime =waitingTime;
+    }
+    
 }

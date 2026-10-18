@@ -54,12 +54,14 @@ public class Dispatcher {
     }
     // 1. State variables
     private int time;
-    private List<Process> jobPool;
-    private List<Process> readyQueue;
-    private List<Process> completedJob;
-    private List<String> timeline;
+    protected  List<Process> jobPool;
+    protected List<Process> readyQueue;
+    protected List<Process> completedJob;
+    protected List<String> timeline;
     private SchedulingAlgorithm strategy;
     private CPU cpu;
+
+    private int currentQuantumSlice;
 
     // 2. Constructor
     public Dispatcher(List<Process> initialJobs, SchedulingAlgorithm strategy) {
@@ -70,6 +72,8 @@ public class Dispatcher {
         this.completedJob = new ArrayList<>();
         this.strategy = strategy;
         this.cpu = CPU.getInstance();
+
+        this.currentQuantumSlice = 0;
     }
 
     // 3. The Engine Loop
@@ -81,9 +85,7 @@ public class Dispatcher {
         // system
         while (!jobPool.isEmpty() || !readyQueue.isEmpty() || !cpu.isIdle()) {
 
-            // STEP 1: Process Arrivals (The Intake)
-            // TODO: Use an Iterator to check the jobPool. If a process's arrivalTime ==
-            // time, remove it from jobPool, set state to READY, and add to readyQueue.
+            // STEP 1: Process Arrivals (The Intake)            
             Iterator<Process> iterator = jobPool.iterator();
             while (iterator.hasNext()) {
                 Process p = iterator.next();
@@ -95,24 +97,30 @@ public class Dispatcher {
                 }
             }
             // STEP 2: Execute the Work (The Burn)
-            if (!cpu.isIdle()) {
+            if (!cpu.isIdle()) {            
                 Process current = cpu.getCurrProcess();
                 current.setRemainingTime(current.getRemainingTime() - 1);
-                System.out.println("Executing " + current.getProcessID() + " at time " + time);            }
-            
+                currentQuantumSlice++;
+                // System.out.println("Executing " + current.getProcessID() + " at time " + time);
+            }
             // STEP 3: Check for Termination (The Exit)
-            // Added the !cpu.isIdle() safety check to prevent NullPointerExceptions
-            if (!cpu.isIdle() && cpu.getCurrProcess().getRemainingTime() <= 0) {
-                Process finishedProcess = cpu.preempt();
-                finishedProcess.setState(ProcessState.TERMINATED);
-                finishedProcess.setCompletionTime(this.time);
-                completedJob.add(finishedProcess);
+            if (!cpu.isIdle()){
+                if(cpu.getCurrProcess().getRemainingTime() <= 0 ) {
+                    Process finishedProcess = cpu.preempt();
+                    finishedProcess.setState(ProcessState.TERMINATED);
+                    finishedProcess.setCompletionTime(this.time);
+                    completedJob.add(finishedProcess);
+                    currentQuantumSlice=0;
+                }
+                else if(strategy.shouldPreempt(cpu.getCurrProcess(), currentQuantumSlice)){
+                    Process preemptProcess=cpu.preempt();
+                    preemptProcess.setState(ProcessState.READY);
+                    readyQueue.add(preemptProcess);
+                    currentQuantumSlice=0;
+                }
             }
 
             // STEP 4: Dispatch the Next Job (The Handoff)
-            // TODO: If cpu.isIdle(), ask your strategy for the next
-            // process:strategy.getNextProcess(readyQueue).If the strategy returns a
-            // process, load it onto the CPU using cpu.execute().
             if (cpu.isIdle()) {
                 Process nextJob = strategy.getNextProcess(readyQueue);
                 if (nextJob != null) {
@@ -133,4 +141,5 @@ public class Dispatcher {
         System.out.println("Simulation complete at time: " + time);
         printGanttChart();
     }
+    protected void onSimulationFinished() {}
 }

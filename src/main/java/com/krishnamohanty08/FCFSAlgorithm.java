@@ -8,4 +8,7 @@ public class FCFSAlgorithm implements SchedulingAlgorithm {
         return readyQueue.remove(0);
 
     }
+    public boolean shouldPreempt(Process currProcess,int timeOnCPU){
+        return false;
+    }
 }

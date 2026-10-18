@@ -1,29 +1,35 @@
 package com.krishnamohanty08;
 
-import com.krishnamohanty08.Dispatcher;
 import java.util.ArrayList;
 import java.util.List;
 
 public class App {
     
+    public static List<Process> getTestWorkload() {
+        List<Process> jobs = new ArrayList<>();
+        jobs.add(new Process("P1", 0, 5, 1));
+        jobs.add(new Process("P2", 1, 3, 1));
+        jobs.add(new Process("P3", 2, 8, 1));
+        jobs.add(new Process("P4", 4, 2, 1));
+        jobs.add(new Process("P5", 1, 3, 1));
+        jobs.add(new Process("P6", 2, 10, 1));
+        jobs.add(new Process("P7", 4, 2, 1));
+        return jobs;
+    }
+
     public static void main(String[] args) {
         
-        // 1. Initialize the workload (Process ID, Arrival Time, Burst Time, Priority)
-        List<Process> initialJobs = new ArrayList<>();
-        
-        // Creating a staggered arrival scenario to test the queue
-        initialJobs.add(new Process("P1", 0, 5, 1)); 
-        initialJobs.add(new Process("P2", 1, 3, 1)); 
-        initialJobs.add(new Process("P3", 2, 8, 1)); 
-        initialJobs.add(new Process("P4", 4, 2, 1)); 
+        System.out.println("Executing SJF :");
+        Dispatcher sjfDispatcher = new Dispatcher(getTestWorkload(), new SJFAlgorithm());
+        sjfDispatcher.startSimulation();
 
-        // 2. Select the strategy (The Rulebook)
-        SchedulingAlgorithm fcfsStrategy = new FCFSAlgorithm();
+        System.out.println("Executing FCFS :");
+        Dispatcher fcfsDispatcher = new Dispatcher(getTestWorkload(), new FCFSAlgorithm());
+        fcfsDispatcher.startSimulation();
 
-        // 3. Assemble the engine
-        Dispatcher dispatcher = new Dispatcher(initialJobs, fcfsStrategy);
-        
-        // 4. Ignition
-        dispatcher.startSimulation();
+        System.out.println("Executing RoundRobin :");
+        Dispatcher roundRobinDispatcher = new Dispatcher(getTestWorkload(), new RoundRobin(3));
+        roundRobinDispatcher.startSimulation();
+    
     }
 }
